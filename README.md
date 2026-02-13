@@ -17,6 +17,9 @@ All data stays local on your machine. No cloud storage.
 ## Quick Start
 
 ```bash
+# Add to your shell config (~/.zshrc or ~/.bashrc)
+export AWS_PROFILE=dev
+
 # Install dependencies
 npm install
 
@@ -26,8 +29,11 @@ ollama pull nomic-embed-text
 
 # Run UDB
 npm run build
-npm start
-# or just: npx tsx src/cli.ts
+
+# Install globally (choose one):
+npm link                    # Option 1: npm link (may need sudo)
+# OR add to your shell config:
+alias udb="node /path/to/udb-cli/dist/cli.js"  # Option 2: alias
 ```
 
 ## Usage
@@ -50,6 +56,7 @@ You: _
 ### Examples
 
 **Save a note:**
+
 ```
 You: Save this command: git stash -u saves all changes including untracked files
 UDB: Added successfully!
@@ -58,12 +65,14 @@ UDB: Added successfully!
 ```
 
 **Ask a question:**
+
 ```
 You: How do I stash untracked files in git?
 UDB: git stash -u saves all changes including untracked files
 ```
 
 **Ingest a URL:**
+
 ```
 You: Add this article: https://example.com/blog/post
 UDB: Ingested successfully!
@@ -72,18 +81,21 @@ UDB: Ingested successfully!
 ```
 
 **Ingest a YouTube video:**
+
 ```
 You: Save this video: https://www.youtube.com/watch?v=dQw4w9WgXcQ
 UDB: Ingested successfully! (transcript extracted)
 ```
 
 **Read and save a local file:**
+
 ```
 You: Read ~/notes/meeting.md and add it to my KB with title "Q1 Planning Meeting"
 UDB: Added successfully!
 ```
 
 **List all sources:**
+
 ```
 You: What's in my knowledge base?
 UDB: Sources (3):
@@ -93,12 +105,14 @@ UDB: Sources (3):
 ```
 
 **Delete a source:**
+
 ```
 You: Delete source kb-123
 UDB: Deleted source: kb-123
 ```
 
 **Multi-line input:**
+
 ```
 You: Save this: \
 ... # Docker Commands \
@@ -132,17 +146,18 @@ UDB: Added successfully!
 
 ### Supported Content Types
 
-| Type | Source | Extraction Method |
-|------|--------|-------------------|
-| **Articles** | Web URLs | Mozilla Readability |
-| **Videos** | YouTube | yt-dlp (transcripts) |
-| **Tweets** | Twitter/X | FxTwitter API |
-| **Text** | Direct input | As-is |
-| **Files** | Local paths | Claude's Read tool |
+| Type         | Source       | Extraction Method    |
+| ------------ | ------------ | -------------------- |
+| **Articles** | Web URLs     | Mozilla Readability  |
+| **Videos**   | YouTube      | yt-dlp (transcripts) |
+| **Tweets**   | Twitter/X    | FxTwitter API        |
+| **Text**     | Direct input | As-is                |
+| **Files**    | Local paths  | Claude's Read tool   |
 
 ### Search
 
 UDB uses semantic search, not keyword matching:
+
 - Your query is converted to a 768-dimensional vector
 - Cosine similarity finds the most relevant chunks
 - Results are deduplicated by source
@@ -191,18 +206,21 @@ All data is stored locally in `~/.udb/`:
 ### Database Schema
 
 **kb_sources** - Original content
+
 ```sql
 id, url, title, source_type, summary, raw_content,
 content_hash (UNIQUE), tags, created_at, updated_at
 ```
 
 **kb_chunks** - Chunked content with embeddings
+
 ```sql
 id, source_id (FK), chunk_index, content,
 embedding (BLOB), created_at
 ```
 
 **kb_chunks_vss** - Vector search index
+
 ```sql
 embedding(768)  -- sqlite-vss virtual table
 ```
@@ -232,6 +250,7 @@ curl http://127.0.0.1:11434/api/tags
 ### "sqlite-vss extension failed to load"
 
 The native module may need rebuilding:
+
 ```bash
 npm rebuild
 ```
@@ -245,6 +264,7 @@ npm rebuild
 ### Claude authentication errors
 
 Ensure Claude CLI is authenticated:
+
 ```bash
 claude --version
 # If not logged in, authenticate first
