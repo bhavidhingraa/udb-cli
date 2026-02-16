@@ -4,10 +4,17 @@
  * UDB - Personal Knowledge Base with RAG
  */
 
+import { config as dotenvConfig } from 'dotenv';
+import { homedir } from 'os';
+import { join } from 'path';
 import chalk from 'chalk';
 import { getDb, closeDb } from './db.js';
 import { initKB, isKBOperational } from './kb/index.js';
 import { startChat } from './chat.js';
+
+// Load .env from ~/.udb/.env (works regardless of current working directory)
+const envPath = join(process.env.UDB_DATA_DIR || join(homedir(), '.udb'), '.env');
+dotenvConfig({ path: envPath });
 
 async function main(): Promise<void> {
   // Handle --version and --help
